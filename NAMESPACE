@@ -1,0 +1,12 @@
+## exported functions
+export(
+  "CADFtest.default",
+  "CADFtest.formula",
+  "CADFtest",
+  "CADFpvalues",
+  "summary.CADFtest",
+  "bread.mlm",
+  "estfun.mlm")
+
+## methods for class CADFtest
+  S3method("summary", "CADFtest")

@@ -1,0 +1,15 @@
+citEntry(entry   = "Techreport",
+         title   = "Unit Root {CADF} Testing with {R}",
+         author  = as.person("Claudio Lupi"),
+         year    = "2008",
+         institution = "University of Molise, Department of Economics, Management and Social
+        	Sciences (SEGeS)",
+
+         textVersion =
+         paste("Claudio Lupi (2008).",
+               "Unit Root CADF Testing with R.",
+               "University of Molise, Department of Economics, Management and Social
+	            Sciences (SEGeS), mimeo"),
+
+	 header = "To cite CADFtest, please use:"
+) 
