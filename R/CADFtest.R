@@ -1,6 +1,5 @@
-CADFtest <- function(model, X=NULL, trend=c("c", "nc", "ct", "none", "drift", "trend"), 
-                     data=list(), max.lag.y=1, min.lag.X=0, max.lag.X=0, dname="",
-                     Auto=FALSE, criterion=c("BIC", "AIC"), prewhite=FALSE,
-                     kernel = c("Parzen", "Quadratic Spectral", "Truncated", "Bartlett", "Tukey-Hanning"))
+CADFtest <- function(model, X=NULL, type=c("trend", "drift", "none"), 
+                     data=list(), max.lag.y=1, min.lag.X=0, max.lag.X=0, dname=NULL, 
+                     criterion=c("none", "BIC", "AIC", "HQC", "MAIC"), ...)
 UseMethod("CADFtest")
-  
+ 

@@ -1,7 +1,6 @@
-CADFtest.formula <- function(model, X=NULL, trend=c("c", "nc", "ct", "none", "drift", "trend"), 
-                             data=list(), max.lag.y=1, min.lag.X=0, max.lag.X=0, dname="",
-                             Auto=FALSE, criterion=c("BIC", "AIC"), prewhite=FALSE,
-                             kernel = c("Parzen", "Quadratic Spectral", "Truncated", "Bartlett", "Tukey-Hanning"))
+CADFtest.formula <- function(model, X=NULL, type=c("trend", "drift", "none"), 
+                             data=list(), max.lag.y=1, min.lag.X=0, max.lag.X=0, dname=NULL,
+                             criterion=c("none", "BIC", "AIC", "HQC", "MAIC"), ...)
 {
 # Author:       Claudio Lupi
 # This version: December 12, 2008
@@ -24,20 +23,17 @@ CADFtest.formula <- function(model, X=NULL, trend=c("c", "nc", "ct", "none", "dr
 #            while z1 and z2 are the stationary covariates to be used in the test. Note that the model is stylized
 #            and all the variables are in levels. It is NOT the model equation on which the test is based.
 #            However, the covariates must be STATIONARY. 
-# trend:     it specifies if the underlying model must be with constant ("c", the default), without constant ("nc"),
-#            or with constant and trend ("ct").
+# type:      it specifies if the underlying model must be with linear trend ("trend", the default), 
+#			 with constant ("drift") or without constant ("none").
 # max.lag.y: it specifies the number of lags of the dependent (\Delta y_t).
 # min.lag.X: it specifies the maximum lead of the covariates (it must be negative or zero).
 # max.lag.X: it specifies the maximum lag of the covariates (it must be positive or zero).
-# Auto:      logical. If Auto==FALSE then the test is performed using the given orders of lags and leads. If Auto==TRUE
 #            then the test is performed using the model that minimizes the selection citerion defined in
 #            'criterion'. In this case, the max e min orders serve as upper and lower bounds in the model
 #            selection.
-# criterion: it can be either "BIC" or "AIC". It is effective only when Auto==TRUE.
-# prewhite:  logical or integer. Should the estimating functions be prewhitened? If TRUE or greater than 0 
-#            a VAR model of order as.integer(prewhite) is fitted via ar with method "ols" and demean = FALSE. 
-#            The default is to use no prewhitening.
-# kernel:    a character specifying the kernel used. All kernels used are described in Andrews (1991).
+# criterion: it can be either "none", "BIC", "AIC" or "HQC". If criterion="none", no automatic model selection
+#            is performed. Otherwise, automatic model selection is performed using the specified 
+#            criterion.           
 #
 # The procedure to compute the CADF test p-value is proposed in Costantini et al. (2007). Please cite the paper
 # when you use the present function.
@@ -52,15 +48,30 @@ CADFtest.formula <- function(model, X=NULL, trend=c("c", "nc", "ct", "none", "dr
 #   url = {http://econpapers.repec.org/paper/molecsdps/esdp07039.htm}
 # }
 
-dname <- deparse(substitute(model))
-mf    <- model.frame(model, data=data)
-y     <- model.response(mf)
-X     <- model.matrix(model, data=data)
-X     <- X[,2:dim(X)[2]]
+if (is.null(dname)){dname <- deparse(substitute(model))}
 
-test.results <- CADFtest.default(model=y, X=X, trend=trend, max.lag.y=max.lag.y, 
-                                 min.lag.X=min.lag.X, max.lag.X=max.lag.X, dname=dname,
-                                 Auto=Auto, criterion=criterion, kernel=kernel, prewhite=prewhite)
+if ((model[3]==".()")|(model[3]=="1()"))
+{
+  model[3] <- 1
+  mf    <- model.frame(model, data=data)
+  y     <- model.response(mf)
+  X     <- NULL
+}
+else
+{
+  mf    <- model.frame(model, data=data)
+  y     <- model.response(mf)
+  X     <- model.matrix(model, data=data)
+  X     <- X[,2:dim(X)[2]]
+}
+
+call <- match.call(CADFtest)
+
+test.results <- CADFtest.default(model=y, X=X, type=type, max.lag.y=max.lag.y, 
+                                 data=data, min.lag.X=min.lag.X, max.lag.X=max.lag.X, dname=dname,
+                                 criterion=criterion, ...)
+
+test.results$call <- call
 
 return(test.results)
 }

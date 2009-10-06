@@ -5,8 +5,16 @@ export(
   "CADFtest",
   "CADFpvalues",
   "summary.CADFtest",
+  "residuals.CADFtest",
+  "plot.CADFtest",
+  "update.CADFtest",
   "bread.mlm",
   "estfun.mlm")
 
 ## methods for class CADFtest
   S3method("summary", "CADFtest")
+  S3method("print", "CADFtestsummary")
+  S3method("residuals", "CADFtest")
+  S3method("plot", "CADFtest")
+  S3method("update", "CADFtest")
+

@@ -1,0 +1,417 @@
+\documentclass[article, nojss]{jss}
+
+<<echo=FALSE>>=
+options(prompt = "R> ", continue="+ ", useFancyQuotes=FALSE)
+@
+
+\author{Claudio Lupi\\University of Molise}
+\Plainauthor{Claudio Lupi}
+
+\title{Unit Root CADF Testing with \proglang{R}}
+\Plaintitle{Unit Root CADF Testing with R}
+
+
+%% an abstract and keywords
+\Abstract {
+  This introduction to the \pkg{CADFtest} package is a (slightly)
+  modified version of \citet{lupi2009b}, published in the
+  \emph{Journal of Statistical Software}. \pkg{CADFtest} is an
+  \proglang{R} package for testing for the presence of a unit root
+  in a time series using the Covariate Augmented Dickey-Fuller (CADF)
+  test proposed in \citet{hansen1995}. The procedures presented here
+  are user friendly, allow fully automatic model specification,
+  and allow computation of the asymptotic $p$~values of the test.
+}
+
+\Keywords{unit root, stationary covariates, asymptotic $p$~values, \proglang{R}}
+\Plainkeywords{unit root, stationary covariates, asymptotic p values, R}
+
+\Address {
+  Claudio Lupi\\
+  Department of Economics, Management and Social Sciences (SEGeS)\\
+  University of Molise\\
+  Via De Sanctis
+  I-86100 Campobasso, Italy\\
+  E-mail: \email{lupi@unimol.it}\\
+}
+
+%% need no \usepackage{Sweave}
+\SweaveOpts{engine=R,eps=FALSE}
+%\VignetteIndexEntry{Unit Root CADF Testing with R}
+%\VignetteDepends{CADFtest,urca,tseries,fUnitRoots}
+%\VignetteKeywords{unit root, stationary covariates, asymptotic p values, R}
+%\VignettePackage{CADFtest}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction and statistical background}
+Testing for a unit root is a frequent problem in macroeconomic modeling and forecasting. Although many tests have been developed so far, the practitioner's workhorse in this field is still probably the Augmented Dickey-Fuller (ADF) test \citep{dickeyfuller1979, dickeyfuller1981, saiddickey1984}, which is known to have good size but low power under many conditions.\footnote{However, large negative MA components are well known to have adverse effects on the size of the ADF test \citep[see e.g.,][]{schwert1989}. An interesting summary of many Monte Carlo results on different unit root tests can be found in \citet{stock1994}. \citet{haldrupjansson2006} is a recent survey of the methods proposed to improve the size and the power of unit roots tests.} However, the literature on unit root testing has largely proceeded in a univariate framework, with notable exceptions being represented by the panel unit root tests \citep[see][for a recent survey]{choi2006b}. In fact, reality is hardly univariate at all and, although univariate representations of multivariate time series exist \citep[see e.g.,][]{zellnerpalm1974}, nevertheless reckoning explicitly the multivariate nature of most economic time series can in principle lead to better testing procedures. In a seminal paper \citet{hansen1995} suggests that, when testing for a unit root, a viable way to exploit the information embodied in related series and increase power is to consider stationary covariates in an otherwise conventional ADF framework. Unless the variable of interest is independent of the stationary covariates considered in the analysis, by the Neyman-Pearson lemma the most powerful test makes use of the information embodied in the stationary covariates themselves \citep[][p.~1152]{hansen1995}. As a consequence, not considering the multivariate dimension of the problem leads to a loss in the power of the test. Using covariates also allows to some extent to couple unit root testing and economic theory, because economic theory can be used as a guideline to chose the appropriate covariates to be included in the analysis \citep[see e.g.,][]{amarapapell2006, elliottpesavento2006}, although other approaches can be used as well \citep{leetsong2009}.
+
+Formally, \citet{hansen1995} considers a univariate time series $y_t$ composed of a deterministic and a stochastic component such that
+\begin{eqnarray}
+  y_t &=& d_t + s_t \label{hansen1} \\
+  a(L) \Delta s_t &=& \delta s_{t-1} + v_t \label{hansen2} \\
+  v_t &=& b(L)^\prime \left( \Delta x_t - \mu_{\Delta x} \right) + e_t \label{hansen3}
+\end{eqnarray}
+where $d_t$ is the deterministic term (usually a constant or a constant and a linear trend), $a(L):=(1-a_1L-a_2L^2-\ldots-a_pL^p)$ is a polynomial in the lag operator $L$, $\Delta x_t$ is a vector of {\em stationary} covariates, $\mu_{\Delta x} := \E(\Delta x)$, $b(L):=(b_{q_2}L^{-q_2}+ \ldots + b_{q_1}L^{q_1})$ is a polynomial where both leads and lags are allowed for. Furthermore, the long-run (zero-frequency) covariance matrix $\Omega := \sum_{k=-\infty}^\infty \E \left( \epsilon_t \epsilon_{t-k}^\prime \right)$, with $\epsilon_t := \left(v_t, e_t \right)^\prime$ can be defined, from which the long-run squared correlation between $v_t$ and $e_t$, $\rho^2$, can be derived. When  $\Delta x_t$ has no explicative power on the long-run movement of $v_t$, then $\rho^2 \approx 1$. On the contrary, when $\Delta x_t$ explains nearly all the zero-frequency variability of $v_t$, then $\rho^2 \approx 0$. The case $\rho^2 = 0$ is ruled out for technical reasons \citep[see][p.~1151]{hansen1995}. It should be noted that this restriction excludes the possibility that the variable $y_t$ be cointegrated with the cumulated stationary covariate(s). 
+
+As with the ADF test, Hansen's CADF test is based on different models, according to the different deterministic kernels that the investigator may wish to consider. For example, the model with constant and linear trend is
+\begin{equation}
+  a(L) \Delta y_t = \mu + \theta \, t + \delta y_{t-1} + b(L)^\prime \Delta x_t + e_t \, . \label{trend}
+\end{equation}
+Similarly to the conventional ADF test, the CADF test is based on the t-statistic for $\delta$, $\widehat{t(\delta)}$, with the null hypothesis being that a unit root is present, i.e. $H_0:\; \delta=0$, against the one-sided alternative $H_1:\; \delta < 0$. \citet{hansen1995} refers to the test statistic as the CADF($p$, $q_1$, $q_2$) statistic.
+
+\citet[][p.~1154]{hansen1995} proves that under the unit-root null, if conventional weak dependence and moment restrictions hold, $\widehat{t(\delta)}$ in the model without deterministic terms is such that
+\begin{equation}
+  \label{asydistrib} \widehat{t(\delta)} \Rightarrow \rho \, \frac{\int_0^1 W \, dW}{\left(\int_0^1 W^2 \right)^{1/2}} + \left(1 - \rho^2 \right)^{1/2} N(0,1)
+\end{equation}
+where $\Rightarrow$ denotes weak convergence, $W$ is a standard Wiener process, and $N(0,1)$ is a standard normal independent of $W$. It is interesting to note that (\ref{asydistrib}) is the distribution of a weighted sum of a Dickey-Fuller and a standard normal random variable. If a model with constant or a model with constant and trend  are considered, the standard Wiener process $W$ in (\ref{asydistrib}) has to be replaced by a demeaned or a detrended Wiener process, respectively. Note that the asymptotic distribution of the test statistic depends on the nuisance parameter $\rho^2$ but, provided $\rho^2$ is given, it can be simulated using standard techniques \citep[see e.g.,][]{hatanaka1996}. \citet[][p.~1155]{hansen1995} provides the asymptotic critical values of the test, while here we offer a practical way to compute its $p$~values.
+
+Hansen's CADF test is firmly rooted in the ADF tradition and for this reason it can be more familiar and attractive to practitioners than other tests, although \citet{elliottjansson2003} show that Hansen's CADF test is not the point optimal test in general. Feasible point optimal tests in the presence of deterministic components are developed in \citet{elliottjansson2003}. A quite different approach is used in this case, the feasible tests being based on VAR models. However, Monte Carlo simulations reported in \citet{elliottjansson2003} suggest that power gains with respect to Hansen's CADF test can be obtained  at the cost of slightly worse size performances.
+
+In this paper we present the \proglang{R} \citep{R2009} package \pkg{CADFtest} that allows users to perform Hansen's CADF unit root test easily. The main function \code{CADFtest()} returns a \code{CADFtest} class object that not only contains the test statistic, but also its asymptotic $p$~value and many other useful details. In fact, the class \code{CADFtest} inherits from the class \code{htest},\footnote{A fairly detailed description of the \code{htest} class can be gathered from within \proglang{R} by typing \code{?t.test}.} so that no special \code{print()} method is needed. However, dedicated \code{summary()} and \code{plot()} methods have been developed in order to allow the user to analyze the test results more in detail. A specialized \code{update()} method is also available that ease testing using different options.
+
+The remainder of the paper is structured as follows: Section \ref{cadftest} discusses the way Hansen's CADF test has been implemented in the function \code{CADFtest()}, and some applications are illustrated in Section \ref{applications}. In Section \ref{pvalues}, the method to compute the asymptotic $p$~values is illustrated in detail along with the use of the function \code{CADFpvalues()}. Section \ref{ADFimplementations} offers some comparisons with other existing \proglang{R} packages performing the ADF test.  A summary is offered in Section \ref{summary}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section[Implementation and use of the function CADFtest()]{Implementation and use of the function \code{CADFtest()}}\label{cadftest}
+In principle, carrying out Hansen's CADF test is no more complicated than carrying out an ordinary ADF test. What makes things more complicated is the presence of the nuisance parameter $\rho^2$ in the asymptotic distribution (\ref{asydistrib}). In fact, a consistent estimate of $\rho^2$ has to be derived in order to choose the correct asymptotic critical value and/or to compute the correct asymptotic $p$~value of the test. The problem is solved into two steps. First, $\hat e_t$ and $\hat v_t$ are derived; then, their long-run covariance matrix $\Omega$ is estimated using a HAC covariance estimator \citep[see e.g.,][]{andrews1991, zeileis2004, zeileis2006, kleiberzeileis2008}.
+
+Once the kind of model (no constant, with constant, with constant and trend) has been chosen, using \code{CADFtest()} the investigator can either set the polynomial orders $p$, $q_2$ and $q_1$ to fixed values, or can decide the maximum value for each and let the procedure to select and estimate the model according to different information criteria.
+
+In order to estimate $\rho^2$ it is necessary to estimate $e_t$ and $v_t$ first. For example, if the model with constant and trend (\ref{trend}) is used, then $e_t$ and $v_t$ are estimated as
+\begin{eqnarray}
+  \hat e_t &=& \widehat{a(L)} \Delta y_t - \hat\mu^* - \hat\theta \, t - \hat\delta_\tau y_{t-1} - \widehat{b(L)}^\prime \Delta x_t \label{estime} \\
+  \hat v_t &=& \widehat{b(L)}^\prime \left( \Delta x_t - \overline{\Delta x} \right) + \hat e_t  \label{estimv}
+\end{eqnarray}
+where ``$\widehat{\;\;}$'' denote parameters estimated by ordinary least squares and $\overline{\Delta x}$ is the sample average of $\Delta x_t$. Once $\hat e_t$ and $\hat v_t$ have been computed, a kernel-based HAC covariance estimator \citep{andrews1991} is used to estimate $\Omega$ and hence $\rho^2$. In order to estimate $\rho^2$ in a rather flexible way, in \code{CADFtest()} the \code{kernHAC()} function included in the \pkg{sandwich} package \citep{zeileis2004, zeileis2006} is used. This allows the investigator to chose the kernel to be applied, the bandwidth, and if and how prewhitening should be performed. Differently from \citet{hansen1995} where a Parzen kernel without prewhitening is used, the default choice in \code{CADFtest()} is a quadratic spectral kernel with VAR(1) prewhitening. The bandwidth is adaptively chosen using the method proposed in \citet{andrews1991}, but the user is free to change any of these default choices.
+
+The usage of the function is extremely simple:
+\begin{CodeInput}
+CADFtest(model, X = NULL, type = c("trend", "drift", "none"), 
+     data = list(), max.lag.y = 1, min.lag.X = 0, max.lag.X = 0, 
+     dname = NULL, criterion = c("none", "BIC", "AIC", "HQC", "MAIC"), ...)
+\end{CodeInput}
+The minimal required input is \code{CADFtest(y)}, where \code{y} can be either a vector or a time series. However, if no stationary covariate is specified, an ordinary ADF test is performed. In fact, the ordinary ADF test can be carried out with \proglang{R} using other existing packages such as \pkg{fUnitRoots} \citep{wuertz2009}, \pkg{tseries} \citep{trapletti2009} and \pkg{urca} \citep{pfaff2008}. In this respect there would be no need to add one further package. However, given that the ADF test can be seen as a particular case of the more general CADF test, it seems logical to leave the user the opportunity to carry out both tests in the same framework, using the same conventions and allowing for the computation of the test $p$~values. Furthermore, as will be shown in section \ref{applications}, the interface to \code{CADFtest()} is very flexible and intuitive, and the results are easy to read: this can make carrying out conventional ADF tests using \code{CADFtest()} very appealing. As far as the computation of the $p$~values of the ADF test is concerned, \code{CADFtest()} exploits the facilities offered by \code{punitroots()} implemented in the package \pkg{urca}  \citep{pfaff2008} that uses the method proposed in \citet{mackinnon1994, mackinnon1996}. In principle, it would have been possible (and easy) to use the function \code{CADFpvalues()} described in detail in section \ref{pvalues}, but given that \citet{mackinnon1996} describes a method to compute approximate finite sample, rather than asymptotic, $p$~values, it seems fair to refer directly to a function that implements this procedure. However, note that \citet{mackinnon1996} derives the finite sample $p$~values for Gaussian data: in non-Gaussian settings the finite sample $p$~values are not necessarily more accurate than the asymptotic ones. 
+
+All the arguments, with the exception of \code{min.lag.X} and \code{max.lag.X} that are relevant only when a  CADF test is carried out, work irrespective of the test being ADF or CADF. However, if a proper CADF test has to be performed, at least a stationary covariate must be passed to the procedure. The covariates are passed in a very simple way, using a formula (model) statement. For example, suppose we want to test the variable $y$ using $x_1$ and $x_2$ as stationary covariates: if the other default options are accepted, then it is sufficient to specify \code{CADFtest(y ~ x1 + x2)}. Note that the formula that is passed as argument to the \code{CADFtest()} function is not the complete model to be used, but it just indicates which variable has to be tested for a unit root (\code{y}) and which are to be used as stationary covariates in the test (\code{x1} and \code{x2}). A formula statement can be used also to specify an ordinary ADF test by typing \code{CADFtest(y ~ 1)}, where the term ``\code{1}'' does not imply that a model with constant will be used, but it simply means that no stationary covariate is passed to the procedure (the deterministic kernel is always defined by the argument \code{type} described below).
+
+Other arguments are used to specify the deterministic kernel to be used in the model (\code{type}), the lead and lag orders (\code{max.lag.y}, \code{min.lag.X}, \code{max.lag.X}), and if the model has to be fixed or selected using a \code{criterion} such as \code{"AIC"} \citep{akaike1973}, \code{"BIC"} \citep{schwarz1978}, \code{"HQC"} \citep{hannanquinn1979} or \code{"MAIC"}  \citep{ngperron2001}. Indeed, given that a number of competing models with potentially many regressors have to be compared, information criteria offer a handy solution. Furthermore, \citet{hall1994} shows that when the data are generated by an ARIMA($p_0$, 1, 0) process, then the distribution of the ADF test statistic under the null converges asymptotically to the correct distribution when the number of lags in the empirical model is determined by using either the AIC, the BIC, or the HQC. On the other hand, \citet{ngperron2001} argue that standard information criteria should be modified to take into account the fact that the series are $I(1)$ under the null and propose their modified AIC (MAIC) that should be more robust in the presence of negative moving-average errors. Ng and Perron's MAIC is computed by \code{CADFtest()} in the OLS-detrended version suggested by \citet{perronqu2007}. However, notice that although the MAIC should in principle work well also in the CADF framework, its usefulness has been proved only in the simpler ADF context. 
+
+When no stationary covariate is passed to the procedure, then lag selection is obviously limited to the lags of $\Delta y_t$, but when a proper CADF test is performed, then model selection implies the joint determination of the lags of the differenced dependent variable and the leads and lags of the stationary covariates as well. If \code{criterion = "none"} (the default choice) is specified, no automatic model selection is performed and the lag orders are fixed to the values passed to the procedure. In particular, \code{max.lag.y} corresponds to $p$, the lag order of $a(L)$ in (\ref{trend}), and it is set to 1 by default: it can be set equal to 0 or to a positive integer. \code{min.lag.X} corresponds to $q_2$, the maximum lead in $b(L)$ in (\ref{trend}),  and it is equal to 0 by default: if modified, it must be set equal to a negative integer (a negative lag is a lead). \code{max.lag.X} correspond to $q_1$, the maximum lag in $b(L)$ in (\ref{trend}), and the default choice is 0: if modified, it must be set equal to a positive integer. If \code{criterion} is different from \code{"none"}, then all the models with lags polynomials up to the specified orders (of both the $y$ and the covariates) are estimated and the final model to be used is selected on the basis of the chosen \code{criterion}. The deterministic components to be used in the model are specified using the conventions utilized in the \proglang{R} package \pkg{urca} \citep{pfaff2008}. The default value (\code{type = "trend"}) implies that the model with constant and trend  (\ref{trend}) is used. If \code{type = "drift"} or \code{type = "none"} is specified, then the model with constant or the model without deterministic components are utilized. \code{data} is the data set to be used and \code{dname} is the name of data: in general there is no need to change \code{dname}, given that it is automatically computed by the function itself, unless one wants to indicate for example that a specific data set has been used. Further arguments can be passed to the procedure to control the parameters to be used in the HAC covariance estimation. These further arguments can be passed using the conventions valid for the command \code{kernHAC()} \citep[see the package \pkg{sandwich}:][]{zeileis2004, zeileis2006}. If Hansen's results have to be replicated, then \code{kernel = "Parzen"} and \code{prewhite = FALSE} have to be specified, otherwise a quadratic spectral kernel with VAR(1) prewhitening is used by default.
+
+The function \code{CADFtest()} returns an object of class \code{CADFtest} containing the test statistic (\code{statistic}), the $p$~value of the test (\code{p.value}), the lag structure of the selected model (\code{max.lag.y}, \code{min.lag.X}, \code{max.lag.X}), the value of the information criteria (\code{AIC}, \code{BIC}, \code{HQC}, \code{MAIC}), the estimated value of $\rho^2$ (\code{parameter}), and the full estimated model (\code{est.model}). Other returned information concern the nature of the test (either CADF or ADF) stored in \code{method}, the name of data used (\code{data.name}), the value of $\delta$ under the null (\code{null.value}), the description of the alternative (\code{alternative}) and the estimated value of $\delta$ (\code{estimate}).
+
+A summary of the test can be obtained just by using a \code{print()} command. Given that the class \code{CADFtest} inherits from the class \code{htest}, the \code{print()} command produces the standard \proglang{R} output of the \code{htest} class. However, the \code{summary()} command is also allowed that returns a more detailed account of the test results. For greater flexibility, \code{print()} can be applied to a \code{CADFtestsummary} object (produced by \code{summary()}) to control further printing options. For example, the number of significant digits can be controlled by \code{digits}, while significance stars can be avoided by setting \code{signif.stars = FALSE}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Some examples of application}\label{applications}
+We provide here some simple examples of application of the function \code{CADFtest()}. Data are taken from the \proglang{R} package \pkg{urca} \citep{pfaff2008} and refer to the extended \citet{nelsonplosser1982} data set used in \citet{schotmanvandijk1991}. These are the same data used in \citet{hansen1995}, so that we will be able to replicate some of the empirical applications proposed there.
+
+First, we load the data and the required package \pkg{CADFtest}: all the following examples assume that both have been loaded.
+
+<<>>=
+data("npext", package="urca")   # load data
+library("CADFtest")
+@
+
+A complete description of the data can be retrieved simply by typing \code{?npext} in \proglang{R}.
+
+We first replicate the analysis carried out in \citet[][p.~1165]{hansen1995} by testing for the presence of a unit root in the log per capita US real GNP using a standard ADF test with constant, trend and three lags:
+
+<<>>=
+ADFt <- CADFtest(npext$gnpperca, max.lag.y=3)
+@
+
+The $p$~value of the test is stored in \code{ADFt$p.value} and it is easily accessible:
+
+<<>>=
+ADFt$p.value
+@
+
+As already mentioned, the {\em finite sample} $p$~value is computed using \code{punitroots()} implemented in package \pkg{urca} \citep{pfaff2008}. In principle, it would have been possible also to compute the {\em asymptotic} $p$~value by using the function \code{CADFpvalues} to be described in detail in the next section by invoking
+
+<<>>=
+CADFpvalues(ADFt$statistic, type="trend", rho2=1)
+@
+
+When a standard Dickey-Fuller test is performed, \code{CADFtest()} acts as an interface to existing commands. For example, in the case above equation (\ref{trend}) is estimated using the package \pkg{dynlm} \citep{zeileis2009} and the test $p$~value is computed using \code{punitroots()}.  
+
+Even if all the results are readily accessible, a summary of the test can be obtained just by typing
+
+<<>>=
+print(ADFt)
+@
+
+The function correctly warns the user that a conventional ADF test has been performed and reports the main results along with the number of lags used in the test.
+
+If we want to obtain a more detailed summary that includes the details of the estimated model, we can just type
+
+<<>>=
+summary(ADFt)
+@
+
+The model output uses the same conventions utilized in the package \pkg{dynlm} \citep{zeileis2009}: \code{trnd} is the deterministic linear trend, \code{L(y, 1)} stands for $y_{t-1}$ and \code{L(d(y), i)} represents $\Delta y_{t-i}$. Note that the $p$~value of the lagged dependent variable refers to the unit root null and is therefore consistent with the test $p$~value. Note also that, differently from the conventional usage, the $F$ statistic here pertains to the joint significance of the {\em stationary} regressors, so that under the null it has the standard $F$ distribution \citep{simsetal1990}. If a simple DF test is performed, then the $F$-statistic is not computed and a \code{NA} value is returned. If more control on the output summary is desired, then it is possible to store the summary results in an object (of class \code{CADFtestsummary}) and print it using \code{print()} with the desired options (for example, \code{digits = 3, signif.stars = FALSE}).
+
+Further details about the test can be gathered from the estimated residuals and from residuals plots. The function \code{residuals()} can be used to extract the estimated residuals as in the following line:
+
+<<>>=
+res.ADFt <- residuals(ADFt)
+@
+
+The extracted residuals can then be used in any desired analysis. Fairly informative plots can also be easily produced by a \code{plot()} command as in
+
+<<>>=
+plot(ADFt)
+@
+
+\begin{figure}[t]
+\begin{center}
+<<fig=TRUE, echo=FALSE>>=
+plot(ADFt)
+@
+\end{center}
+\vspace{-1cm} \caption{Standardized residuals, residuals density, residuals ACF and residuals PACF.} \label{resplot4}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+<<fig=TRUE, echo=FALSE>>=
+plot(ADFt, plots=c(1,3,4))
+@
+\end{center}
+\vspace{-1cm} \caption{Standardized residuals, residuals ACF and residuals PACF.}
+\label{resplot3}
+\end{figure}
+
+Four plots are produced by default, as in Figure~\ref{resplot4}. In particular, the standardized residuals, the estimated residuals density along with the test for normality proposed in \citet{jarquebera1980}, the estimated residuals autocorrelation function (ACF) and partial autocorrelation function (PACF) are plotted. However, any combination of these plots can be produced as well. For example, if the residuals density is not needed, then it is sufficient to specify 
+
+<<>>=
+plot(ADFt, plots=c(1,3,4))
+@
+
+to produce a visualization as in Figure~\ref{resplot3}.
+
+In order to show other useful features of the \code{CADFtest()} command, we carry out now a few data transformations:
+
+<<>>=
+npext$unemrate <- exp(npext$unemploy)      # compute unemployment rate
+L <- ts(npext, start=1860)                 # time series of levels
+D <- diff(L)                               # time series of diffs
+S <- window(ts.intersect(L,D), start=1909) # select same sample as Hansen's
+@
+
+Data are now interpreted as annual time series starting in 1860. The sample ends in 1988 (this is easy to verify by invoking the \code{tsp()} function). Given that \code{unemploy} is the log of the unemployment rate, while we need the unemployment rate, the series in levels used by \citet{hansen1995} is computed. The time series in levels are stored in \code{L}, while \code{D} stores the first differences of the original variables, that will be used as stationary covariates in the CADF tests. \code{S} contains all the series over a common sample that starts in 1909, as in \citet{hansen1995}.
+
+The ADF test could have been also performed by invoking
+
+<<>>=
+ADFt <- CADFtest(L.gnpperca ~ 1, data = S, max.lag.y = 3)
+@
+
+Since no stationary covariate is explicitly indicated in the model, the test is performed as an ordinary ADF test (with constant and trend and three lags, as before).
+
+Automatic lag selection can be achieved by using the \code{criterion} argument in the \code{CADFtest()} command. For example, in the following we fix the maximum lag order $p$ of $\Delta y_{t-p}$ to $p=4$ and let the final model to be selected by the BIC, possibly highlighting that the data are from the extended \citet{nelsonplosser1982} data set used by \citet{schotmanvandijk1991}: 
+
+<<>>=
+CADFtest(L.gnpperca ~ 1, data = S, max.lag.y = 4, criterion = "BIC", dname = "Extended Nelson-Plosser data")
+@
+
+or by updating the object \code{ADFt} that contains the results of a previous test:
+
+<<>>=
+ADFt2 <- update(ADFt, change=list("max.lag.y = 4", "criterion = 'BIC'", "dname = 'Extended Nelson-Plosser data'"))
+@
+
+Of course, when automatic lag selection is enabled, all the models are estimated on the same common sample.
+
+Let's now turn back again to our ADF(3) test performed by using \code{CADFtest()}:
+
+<<>>=
+ADFt <- CADFtest(L.gnpperca ~ 1, data = S, max.lag.y = 3)
+@
+
+Now, suppose that we want to run Hansen's CADF test on the log-real GNP per capita by using the first difference of the unemployment rate as a stationary covariate. The test is carried out with constant and trend and allowing 3 lags for the (differences of the) dependent variable  and 0 lags for the covariate. For the results to be fully consistent with \citet[][Table 8, column 2, p.~1166]{hansen1995}, \code{kernel = "Parzen"} and \code{prewhite = FALSE} have to be specified. Given the last ADF was carried out using 3 lags, we can perform the CADF test just by calling
+
+<<>>=
+CADFt <- update(ADFt, change=list("+ D.unemrate", "kernel = 'Parzen'", "prewhite = FALSE"))
+print(CADFt)
+@
+
+Differently from \citet{hansen1995}, we not only verify that the test is significant at the asymptotic 1\% level, but we can also give a precise assessment of the test $p$~value.
+
+Besides the CADF(3,0,0) test, Hansen's original analysis includes some other CADF tests, namely the CADF(3,2,0), CADF(3,2,2), CADF(3,0,2). Instead of using different tests in this way, we rather specify the maximum lag for the dependent and the maximum lead and lag for the stationary covariate, and leave the model to be selected by using the BIC. Of course, the AIC, HQC or MAIC could have been used as well and the orders of all the lags polynomials would have been again selected automatically:
+
+<<>>=
+CADFt <- update(CADFt, change=list("max.lag.X = 3", "min.lag.X = -3", "criterion = 'BIC'"))
+print(CADFt)
+@
+
+The selected model is CADF(0,2,0) and the null is rejected for any reasonable confidence level. The last \code{update()} is equivalent to
+
+<<>>=
+CADFt <- CADFtest(L.gnpperca ~ D.unemrate, data = S, max.lag.y = 3, max.lag.X = 3, min.lag.X = -3, criterion = "BIC", kernel = "Parzen", prewhite = FALSE)
+@ 
+
+Of course, if desired the test can be easily carried out using more than just one covariate. In fact, it is sufficient to specify the model accordingly as in 
+
+<<>>=
+CADFt <- CADFtest(L.gnpperca ~ D.unemrate + D.indprod, data = S, max.lag.y = 3, max.lag.X = 3, min.lag.X = -3, criterion = "BIC", kernel = "Parzen", prewhite = FALSE)
+@ 
+
+or using the \code{update()} command.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section[p values computation and the function CADFpvalues()]{$p$~values computation and the function \code{CADFpvalues()}}\label{pvalues}
+The possibility of computing the $p$~values of a test greatly increases the chances that the test is effectively used by practitioners. This is \textit{a fortiori} true when the test procedure requires the use of non-standard tables available only in few specialized papers. There are even instances where computation of the $p$~values is necessary for further investigations, as is the case for some panel unit root tests \citep[see e.g.,][]{maddalawu1999, choi2001, choi2006, costantinilupipopp2007}. The \proglang{R} function \code{CADFpvalues()} presented here allows the computation of asymptotic $p$~values of the CADF test proposed in \citet{hansen1995}. \code{CADFpvalues()} is used within the \code{CADFtest()} function to compute the $p$~values of the test along with the other test results already discussed. However, \code{CADFpvalues()} can also be used separately from the main testing procedure.
+
+The method used to compute the $p$~values has been originally proposed in \citet{costantinilupipopp2007} and is based on a response surface approach similar to that proposed in \citet{mackinnon1994, mackinnon1996} for the $p$~values of the ADF test \citep[classical references on the estimation and use of response surfaces are, among others][]{hendry1984, ericsson1986}. Differently from what happens with reference to the Dickey-Fuller distribution which is free from nuisance parameters, the asymptotic distribution of the CADF test statistic depends on the nuisance parameter $0 < \rho^2 \leq 1$, so that the asymptotic distribution (\ref{asydistrib}) has to be simulated over a grid of values for $\rho^2$. When $\rho^2=1$ the distribution coincides with the ordinary Dickey-Fuller distribution. 
+
+In order to obtain fairly good approximations, here a grid of 40 values $\rho^2 \in \{0.025, 0.050,\allowbreak 0.0725,\allowbreak \ldots , 1\}$ is considered. For each of the three models (without deterministic components, with constant, with constant and linear trend), 100,000 replications\footnote{Simulations have been carried out using \proglang{R}.} have been used for each value of $\rho^2$. The Wiener functionals have been simulated using a standard approach \citep[see e.g.,][p.~67]{hatanaka1996} with $T=5,000$ (for the ``no constant'', ``constant'' and ``constant plus trend'' case, standard, demeaned and detrended Wiener processes have been used, respectively). On the basis of the simulated values, for each value of $\rho^2$ 1,005 asymptotic quantiles $q_\rho$ have been derived corresponding to the probabilities $p=($0.00025, 0.00050, 0.00075, $\ldots$, 0.001, 0.002, $\ldots$, 0.998, 0.999, 0.99925, 0.99950, 0.99975). As a result, we obtained a $1,005 \times 40$ matrix of estimated quantiles. Along the rows of the matrix it is possible to read how a given quantile varies with $\rho^2$. Indeed, the estimated quantiles vary very smoothly with $\rho^2$ \citep[see][]{costantinilupipopp2007}.
+
+For each row of the quantile matrix the model
+\begin{equation}
+  q_\rho(p) = \beta_0 + \beta_1 \rho^2 + \beta_2 \left( \rho^2 \right)^2 + \beta_3 \left( \rho^2 \right)^3 + \epsilon
+\end{equation}
+is estimated and the $\hat\beta$'s are saved in a $1,005 \times 4$ table. The tables of estimated coefficients for the ``no constant'', ``constant'' and ``constant plus trend'' case, respectively are used by the function \code{CADFpvalues()} in order to compute the asymptotic $p$~values for any value of $0 < \rho^2 \leq 1$ for the relevant model.\footnote{The estimated tables of coefficients are available from within the package.}
+
+The way the computation of the $p$~values proceeds in \code{CADFpvalues()} is essentially the following: \begin{enumerate}
+  \item
+    The relevant table of parameters is read, depending on the specific model used (``no constant'', ``constant''
+    or ``constant plus trend'').
+  \item
+    For any desired value $\rho_0^2$ of $\rho^2$, the estimated parameters are used to compute for all the 1,005
+    probability values $p$ the fitted quantiles $\widehat{q_{\rho_0}}(p)$ as
+    \begin{equation}
+      \widehat{q_{\rho_0}}(p) = \widehat{\beta_0} + \widehat{\beta_1} \rho_0^2 + \widehat{\beta_2} \left( \rho_0^2
+      \right)^2 + \widehat{\beta_3} \left( \rho_0^2 \right)^3 \, . \nonumber
+    \end{equation}
+  \item
+    The approach suggested in \citet{mackinnon1994, mackinnon1996} can now be used on $\widehat{q_{\rho_0}}$ to
+    derive the $p$~value. First, given the value $\widehat{t(\delta)}$ of the test statistic, it is necessary to find the fitted quantile $\widehat{q_{\rho_0}}$ that is closest to $\widehat{t(\delta)}$ and the corresponding
+    probability $\tilde p$.
+  \item
+    The regression
+    \begin{equation}
+      \Phi^{-1}(p) = \gamma_0 + \gamma_1 \widehat{q_{\rho_0}}(p) + \gamma_2 \widehat{q_{\rho_0}}^2(p) + \gamma_3
+      \widehat{q_{\rho_0}}^3(p) + \nu_p
+    \end{equation}
+    where $\Phi^{-1}(p)$ is the inverse of the cumulative standard normal distribution is estimated locally on an
+    interval of $p$ centered on $\tilde p$. In \code{CADFpvalues()} local interpolation takes place using 11 values centered on $\tilde p$.
+  \item
+    The $p$~value associated with the estimated test statistic $\widehat{t(\delta)}$ is finally obtained from
+    \begin{equation}
+      \Phi \left( \hat\gamma_0 + \hat\gamma_1 \widehat{t(\delta)} + \hat\gamma_2 \widehat{t(\delta)}^2 +
+      \hat\gamma_3 \widehat{t(\delta)}^3 \right) \, .
+    \end{equation}
+\end{enumerate}
+
+While computation is rather involved, from the user's viewpoint the usage of the function is extremely simple:
+\begin{CodeInput}
+CADFpvalues(t0, rho2 = 0.5, type = "trend")
+\end{CodeInput}
+where \code{t0} is the value of the test statistic $\widehat{t(\delta)}$, \code{rho2} is the estimated value of $\rho^2$, and \code{type} assumes the values \code{"trend"} (the default), \code{"drift"} or \code{"none"} as discussed above when a model with constant plus trend, with constant or without constant is considered.
+
+For example, suppose that we want to know the $p$~values of the tests reported in \citet[][Table 10]{hansen1995}. These tests are carried out using models with constant and trend. Specifically, consider the CADF(3,0,0) and CADF(3,2,0) whose test statistics are -2.2 and -1.7, with $\hat\rho^2$ equal to 0.53 and 0.20, respectively. The computation of the $p$~values of these tests is immediate:
+
+<<>>=
+CADFpvalues(t0 = -2.2, rho2 = 0.53)
+CADFpvalues(t0 = -1.7, rho2 = 0.20)
+@
+
+It is now clear that both tests do not reject the null.
+
+If desired, \code{CADFpvalues()} can be used also to compute the asymptotic $p$~values of the ordinary ADF test, as shown above in Section \ref{applications}. In fact, it is sufficient to set \code{rho2 = 1} to obtain the asymptotic $p$~values of the Dickey-Fuller distribution. For example
+
+<<>>=
+CADFpvalues(-0.44, type = "drift", rho2 = 1)
+@
+
+computes a $p$~value that can be compared directly with the values reported for example in Table 4.2 in \citet{banerjeeetal1993}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section[Other R implementations of the ADF test]{Other \proglang{R} implementations of the ADF test}\label{ADFimplementations}
+
+While \pkg{CADFtest} implements Hansen's covariate augmented Dickey-Fuller test and includes the ADF test as a special case, other \proglang{R} packages can perform the ADF test. However, we believe that the function \code{CADFtest()} has a more flexible and convenient interface than other existing functions have. 
+
+\pkg{urca} \citep{pfaff2008} is a leading \proglang{R} package for the analysis of integrated and cointegrated time series that includes the \code{ur.df()} function for the ADF test. However, this command cannot deal with missing values and does not have a \code{data} argument. Therefore, in order to carry out the same ADF test with three lags we did before, we need to specify all the data details manually, leaving out the first 49 observations for which we have missing values:
+
+<<>>=
+library("urca")
+adf.urca <- ur.df(npext$gnpperca[-(1:49)], type = "trend", lags = 3)
+@
+
+Apart from the call being less flexible, the results are not as easy to read as are those that can be obtained from \code{CADFtest()}. Only the critical values, taken from \citet{dickeyfuller1981} and \citet{hamilton1994}, are available to judge the significance of the test, while the test $p$~value is not reported. In fact, if a \code{summary()} is performed, the $p$~value associated to the coefficient of the lagged dependent variable is computed using the $t$ distribution that is obviously incorrect under the null. Automatic lag selection is possible on the basis of the AIC and BIC criteria (not the HQ or the MAIC) and a \code{plot()} method is available that, when applied to \code{adf.urca}, produces a result similar to Figure~\ref{resplot3}.
+
+As with \code{ur.df()}, \code{adf.test()} in package  \pkg{tseries} \citep{trapletti2009} does not allow for missing values. The typical call would be 
+
+<<>>=
+library("tseries")
+adf.tseries <- adf.test(npext$gnpperca[-(1:49)], k = 3)
+@
+
+The output is easily interpretable, but no \code{summary()} or \code{plot()} methods are offered. Furthermore, the model is restricted to the case with constant and trend only, and the $p$~value is computed using a simplified procedure based on the interpolation of the values reported in \citet[][Table 4.2, p.~103]{banerjeeetal1993}. Finally, \code{adf.test()} does not offer automatic lag selection options.
+
+\pkg{fUnitRoots} \citep{wuertz2009} is another important \proglang{R} package performing unit root tests. In particular, the function \code{unitrootTest()} performs the ADF test and computes the relevant finite sample $p$~values using the approach developed in \citet{mackinnon1996}. However, no automatic lag selection is performed. The object passed to the procedure must be a vector or a time series, but no data argument is used, so that the usual call would be something like
+
+<<>>=
+library("fUnitRoots")
+adf.fUnitRoots <- unitrootTest(npext$gnpperca, lags = 3, type = "ct")
+@
+
+The function can cope with leading missing values, in the sense that the model is correctly estimated. However, in our example the initial 49 missing values are considered in the length of the series, so that the finite sample $p$~value is incorrect. In order to obtain correct $p$~values, no missing values should be present so that in our case the series should again be adjusted manually.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Summary}\label{summary}
+This paper presents the \proglang{R} package \pkg{CADFtest} that allows unit root testing using the Covariate Augmented Dickey-Fuller (CADF) test originally proposed in \citet{hansen1995}.
+
+Differently from the already available routines written in \proglang{GAUSS} and in \proglang{MATLAB} \citep{hansen1995b}, the present functions are easy to use, do not require the user to modify the programs, and allow the computation of the asymptotic $p$~values of the tests. Beside being extremely useful in general, $p$~values computation opens to the possibility of using the CADF tests in unit root combination tests, for example in the context of macro panels \citep[see e.g.,][]{maddalawu1999, choi2001, choi2006, costantinilupipopp2007}. When used to perform conventional ADF tests, \pkg{CADFtest} also encompasses the main features of other existing \proglang{R} packages, with a more flexible and intuitive interface. 
+
+\pkg{CADFtest} can be downloaded from the Comprehensive \proglang{R} Archive Network (CRAN) at \url{http://CRAN.r-project.org/package=CADFtest}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Computational details}
+The functions illustrated in this paper have been implemented in
+\proglang{R}~\Sexpr{paste(R.Version()[6:7], collapse = ".")} \citep{R2009}
+using the following packages, listed in alphabetical order:
+\pkg{dynlm}~packageDescription("dynlm")["Version"] \citep{zeileis2009},
+\pkg{sandwich}~packageDescription("sandwich")["Version"] \citep{zeileis2004, zeileis2006},
+\pkg{tseries}~packageDescription("tseries")["Version"] \citep{trapletti2009},
+\pkg{urca}~packageDescription("urca")["Version"] \citep{pfaff2008}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Acknowledgments}
+I would like to thank Achim Zeileis for his many comments and suggestions that helped me in improving on previous versions of the package. Both the software and the paper greatly benefited from the detailed comments I received from two anonymous referees and an associate editor. I am grateful to Mauro Costantini and Stephan Popp for comments and discussion. Of course, none of them is responsible for any remaining error. I owe a special thank you to the authors of the \proglang{R} packages used in the development of \pkg{CADFtest}.
+
+This text was typeset in \LaTeX ~ using \proglang{R} \citep{R2009} and \code{Sweave()} \citep{leisch2002, leisch2003}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{CADFtest}
+\end{document}

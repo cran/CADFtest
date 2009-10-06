@@ -1,15 +1,19 @@
-citEntry(entry   = "Techreport",
-         title   = "Unit Root {CADF} Testing with {R}",
-         author  = as.person("Claudio Lupi"),
-         year    = "2008",
-         institution = "University of Molise, Department of Economics, Management and Social
-        	Sciences (SEGeS)",
+citHeader("To cite CADFtest in publications use:")
 
-         textVersion =
-         paste("Claudio Lupi (2008).",
-               "Unit Root CADF Testing with R.",
-               "University of Molise, Department of Economics, Management and Social
-	            Sciences (SEGeS), mimeo"),
+citEntry(entry = "Article",
+  title        = "Unit Root CADF Testing with {R}",
+  author       = as.person("Claudio Lupi"),
+  journal      = "Journal of Statistical Software",
+  year         = "2009",
+  volume       = "32",
+  number       = "2",
+  pages        = "1--19",
+  url          = "http://www.jstatsoft.org/v32/i02/",
 
-	 header = "To cite CADFtest, please use:"
-) 
+  textVersion  =
+  paste("Claudio Lupi (2009).",
+        "Unit Root CADF Testing with R.",
+        "Journal of Statistical Software, 32(2), 1-19.",
+        "URL http://www.jstatsoft.org/v32/i02/.")
+)
+

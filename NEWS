@@ -1,0 +1,61 @@
+Changes in Version 0.3-0
+
+    A new improved version of the "CADFtest" package (version 0.3-0)
+	is available. The new version includes some minor adjustments
+	to the code and adds a number of new features. It accompanies
+	publication of the package in the Journal of Statistical Software.
+
+	New methods added in Version 0.3-0:
+	-	residuals() retrieves the model's residuals;
+	-	plot() plots the model's residuals (standardized residuals,
+		residuals density and Jarque-Bera test for normality, 
+		ACF of residuals, partial ACF of residuals).
+	-	an update-method has been added to update model specification, lags,
+		options.
+	-	the summary-method now produces an object of class "CADFtestsummary".
+		A new print-method has been added for this class. This allows the 
+		user to control the usual options (digits, signif.stars, etc.). The 
+		p-value of the lagged dependent is now consistent with the CADF distribution.
+		The F-statistic refer to the joint significance of the stationary regressors
+		in the auxiliary test regression.
+
+	New options and arguments:
+	-	in the new version, the model can be specified also as "y ~ 1". 
+		This means that no stationary covariates are used, and an ordinary ADF model 
+		will be carried out. However, ``1'' does not necessarily mean that a onstant
+		is used in the model: as usual, the type of model (without constant, with 
+		constant, with constant and linear trend) is chosen according to the argument 
+		"type".
+	-	instead of specifying "Auto=TRUE" for automatic model selection (as in the
+		previous version of the package), the criterion argument now takes the form 
+		criterion=c("none", "BIC", "AIC", "HQC"). The default is "none" that corresponds 
+		to the "Auto=FALSE" argument of the previous version of the package. The 
+		Hannan-Quinn criterion ("HQC") has been added for completeness to the already 
+		present Akaike ("AIC") and Schwarz ("BIC") criteria;
+	-	the user can control all the argument passed to "KernHAC", instead of 
+		just "kernel" and "prewhite". However, the default has been changed to
+		quadratic spectral kernel with VAR(1) prewhitening. If one wants to 
+		use Hansen's (1995) setting kernel="Parzen" and prewhite=FALSE have to be 
+		specified;
+	-	the argument `trend' has changed to type = c("trend", "drift",
+		"none") to be consistent with package "urca".
+
+	New data:
+	-	The subdirectory ./data contains the tables of parameters 
+		estimated in Costantini et al. (2007) in binary (.rda) format. 
+		The tables can be accessed using the usual procedures.
+
+	Dependencies:
+	-	The package now depends on "urca" rather than on "fUnitRoots",
+		given that the latter will become deprecated and the relevant 
+		functions have been already ported to "urca". Dependency on "tseries"
+		has been added to allow for the new features of version 0.3-0 (the
+		Jarque-Bera test is computed using package "tseries").
+
+	Documentation:
+	-	Some typos corrected and other minor fixes in the .Rd files;
+	-	documentation on the new features has been added;
+	-	The new vignette("CADFtest", package = "CADFtest") essentially
+		contains the paper published in the Journal of Statistical
+		Software (http://www.jstatsoft.org/v32/i02/).
+	-	./inst/CITATION now points to the JSS paper.
