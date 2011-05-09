@@ -2,7 +2,7 @@
 \alias{CADFtest}
 \alias{CADFtest.formula}
 \alias{CADFtest.default}
-\title{Hansen's Covariate-Augmented Dickey Fuller (CADF) test}
+\title{Hansen's Covariate-Augmented Dickey Fuller (CADF) test for unit roots}
 \description{
   This function is an interface to \code{CADFtest.default} that computes the CADF unit root test
   proposed in Hansen (1995). The asymptotic p-values of the test are also computed along the lines
@@ -79,7 +79,7 @@ CADFtest(model, X=NULL, type=c("trend", "drift", "none"),
 }
 \references{
     Costantini M, Lupi C, Popp S (2007). A Panel-CADF Test for Unit Roots, University of Molise,
-    \emph{Economics \& Statistics Discussion Paper} 39/07.
+    \emph{Economics & Statistics Discussion Paper} 39/07.
     \url{http://econpapers.repec.org/paper/molecsdps/esdp07039.htm}
 
     Hansen BE (1995). Rethinking the Univariate Approach to Unit Root Testing: Using
@@ -97,8 +97,6 @@ CADFtest(model, X=NULL, type=c("trend", "drift", "none"),
     \url{http://www.jstatsoft.org/v16/i09/}.
 }
 \author{Claudio Lupi}
-
-\note{If p-values are used, please cite Costantini et al. (2007).} 
 
 \seealso{\code{fUnitRoots}, \code{urca}}
 \examples{

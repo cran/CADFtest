@@ -1,30 +1,31 @@
 \documentclass[article, nojss]{jss}
 
+\providecommand{\BIBand}{and}
+\renewcommand{\BIBand}{and}
+
+%\VignetteIndexEntry{CADFtest}
+
 <<echo=FALSE>>=
 options(prompt = "R> ", continue="+ ", useFancyQuotes=FALSE)
 @
 
 \author{Claudio Lupi\\University of Molise}
-\Plainauthor{Claudio Lupi}
 
 \title{Unit Root CADF Testing with \proglang{R}}
-\Plaintitle{Unit Root CADF Testing with R}
 
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Claudio Lupi}     %% comma-separated
+\Plaintitle{CADF tests with R} %% without formatting
+\Shorttitle{CADF tests with \proglang{R}} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract {
-  This introduction to the \pkg{CADFtest} package is a (slightly)
-  modified version of \citet{lupi2009b}, published in the
-  \emph{Journal of Statistical Software}. \pkg{CADFtest} is an
-  \proglang{R} package for testing for the presence of a unit root
-  in a time series using the Covariate Augmented Dickey-Fuller (CADF)
-  test proposed in \citet{hansen1995}. The procedures presented here
-  are user friendly, allow fully automatic model specification,
-  and allow computation of the asymptotic $p$~values of the test.
+  This document has been published with minor differences in the {\em Journal of Statistical Software} as \citet{lupi2009b}. The paper describes \pkg{CADFtest}, a \proglang{R} package for testing for the presence of a unit root in a time series using the Covariate Augmented Dickey-Fuller (CADF) test proposed in \citet{hansen1995}. The procedures presented here are user friendly, allow fully automatic model specification, and allow computation of the asymptotic $p$~values of the test.
 }
 
 \Keywords{unit root, stationary covariates, asymptotic $p$~values, \proglang{R}}
-\Plainkeywords{unit root, stationary covariates, asymptotic p values, R}
+
+\Plainkeywords{unit root, stationary covariates, asymptotic p-values, R}
 
 \Address {
   Claudio Lupi\\
@@ -35,12 +36,11 @@ options(prompt = "R> ", continue="+ ", useFancyQuotes=FALSE)
   E-mail: \email{lupi@unimol.it}\\
 }
 
-%% need no \usepackage{Sweave}
-\SweaveOpts{engine=R,eps=FALSE}
-%\VignetteIndexEntry{Unit Root CADF Testing with R}
-%\VignetteDepends{CADFtest,urca,tseries,fUnitRoots}
-%\VignetteKeywords{unit root, stationary covariates, asymptotic p values, R}
-%\VignettePackage{CADFtest}
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{document}
 
@@ -72,7 +72,7 @@ where $\Rightarrow$ denotes weak convergence, $W$ is a standard Wiener process, 
 
 Hansen's CADF test is firmly rooted in the ADF tradition and for this reason it can be more familiar and attractive to practitioners than other tests, although \citet{elliottjansson2003} show that Hansen's CADF test is not the point optimal test in general. Feasible point optimal tests in the presence of deterministic components are developed in \citet{elliottjansson2003}. A quite different approach is used in this case, the feasible tests being based on VAR models. However, Monte Carlo simulations reported in \citet{elliottjansson2003} suggest that power gains with respect to Hansen's CADF test can be obtained  at the cost of slightly worse size performances.
 
-In this paper we present the \proglang{R} \citep{R2009} package \pkg{CADFtest} that allows users to perform Hansen's CADF unit root test easily. The main function \code{CADFtest()} returns a \code{CADFtest} class object that not only contains the test statistic, but also its asymptotic $p$~value and many other useful details. In fact, the class \code{CADFtest} inherits from the class \code{htest},\footnote{A fairly detailed description of the \code{htest} class can be gathered from within \proglang{R} by typing \code{?t.test}.} so that no special \code{print()} method is needed. However, dedicated \code{summary()} and \code{plot()} methods have been developed in order to allow the user to analyze the test results more in detail. A specialized \code{update()} method is also available that ease testing using different options.
+In this paper we present the \proglang{R} \citep{R2009} package \pkg{CADFtest} that allows users to perform Hansen's CADF unit root test easily.\footnote{The present paper describes version 0.3-0 of the package.} The main function \code{CADFtest()} returns a \code{CADFtest} class object that not only contains the test statistic, but also its asymptotic $p$~value and many other useful details. In fact, the class \code{CADFtest} inherits from the class \code{htest},\footnote{A fairly detailed description of the \code{htest} class can be gathered from within \proglang{R} by typing \code{?t.test}.} so that no special \code{print()} method is needed. However, dedicated \code{summary()} and \code{plot()} methods have been developed in order to allow the user to analyze the test results more in detail. A specialized \code{update()} method is also available that ease testing using different options.
 
 The remainder of the paper is structured as follows: Section \ref{cadftest} discusses the way Hansen's CADF test has been implemented in the function \code{CADFtest()}, and some applications are illustrated in Section \ref{applications}. In Section \ref{pvalues}, the method to compute the asymptotic $p$~values is illustrated in detail along with the use of the function \code{CADFpvalues()}. Section \ref{ADFimplementations} offers some comparisons with other existing \proglang{R} packages performing the ADF test.  A summary is offered in Section \ref{summary}.
 
@@ -394,13 +394,7 @@ Differently from the already available routines written in \proglang{GAUSS} and 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Computational details}
-The functions illustrated in this paper have been implemented in
-\proglang{R}~\Sexpr{paste(R.Version()[6:7], collapse = ".")} \citep{R2009}
-using the following packages, listed in alphabetical order:
-\pkg{dynlm}~packageDescription("dynlm")["Version"] \citep{zeileis2009},
-\pkg{sandwich}~packageDescription("sandwich")["Version"] \citep{zeileis2004, zeileis2006},
-\pkg{tseries}~packageDescription("tseries")["Version"] \citep{trapletti2009},
-\pkg{urca}~packageDescription("urca")["Version"] \citep{pfaff2008}. 
+The functions illustrated in this paper have been implemented in \proglang{R} version 2.9.2 \citep{R2009} using the following packages, listed in alphabetical order: \pkg{dynlm} version 0.2-3 \citep{zeileis2009}, \pkg{sandwich} version 2.2-1 \citep{zeileis2004, zeileis2006}, \pkg{tseries} version 0.10-19 \citep{trapletti2009}, \pkg{urca} version 1.2-2 \citep{pfaff2008}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

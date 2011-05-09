@@ -5,15 +5,11 @@ citEntry(entry = "Article",
   author       = as.person("Claudio Lupi"),
   journal      = "Journal of Statistical Software",
   year         = "2009",
-  volume       = "32",
-  number       = "2",
-  pages        = "1--19",
-  url          = "http://www.jstatsoft.org/v32/i02/",
-
+  volume = {32},
+  pages = {1--19},
+  number = {2},
   textVersion  =
   paste("Claudio Lupi (2009).",
         "Unit Root CADF Testing with R.",
-        "Journal of Statistical Software, 32(2), 1-19.",
-        "URL http://www.jstatsoft.org/v32/i02/.")
+        "Journal of Statistical Software, 32 (2), 1-19.")
 )
-

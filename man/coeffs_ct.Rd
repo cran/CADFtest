@@ -3,7 +3,7 @@
 \alias{coeffs_nc}
 \alias{coeffs_c}
 \docType{data}
-\title{Tables of coefficients to compute p-values as estimated by Costantini et al. (2007)}
+\title{Tables of coefficients to compute p-values}
 \description{
   These tables contain the response surface coefficients needed to compute the p-value of Hansen's
   CADF test (see Costantini et al., 2007; Lupi, 2009). \code{coeffs_ct}, \code{coeffs_c}, 
@@ -12,6 +12,8 @@
 }
 \usage{
 data("coeffs_ct")
+data("coeffs_c")
+data("coeffs_nc")
 }
 
 \format{
@@ -24,12 +26,11 @@ data("coeffs_ct")
 }
 \references{
     Costantini M, Lupi C, Popp S (2007), A Panel-CADF Test for Unit Roots, University of Molise,
-    \emph{Economics \& Statistics Discussion Paper} 39/07.
+    \emph{Economics & Statistics Discussion Paper} 39/07.
     \url{http://econpapers.repec.org/paper/molecsdps/esdp07039.htm}.
 
     Lupi C (2009). Unit Root CADF Testing with R, \emph{Journal of Statistical Software},
     \bold{32}(2), 1--19. \url{http://www.jstatsoft.org/v32/i02/}
 }
 \author{Claudio Lupi}
-\note{If these tables are used, please cite Costantini et al. (2007).} 
 \keyword{datasets}

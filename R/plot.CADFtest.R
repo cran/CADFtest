@@ -12,7 +12,7 @@ plot.CADFtest <- function(x, plots=(1:4), ...)
 
     if (1 %in% plots)
 	{
-		sr <- (r-mean(r))/sqrt(var(r))
+		sr <- rstandard(x$est.model)
 		plot(sr, type="h", main="standardized residuals", 
 			ylab="", xlab="Time", ...)
         abline(h=0)

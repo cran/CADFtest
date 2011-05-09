@@ -1,9 +1,16 @@
+Changes in Version 0.3-1
+
+	Corrections to methods:
+	-	A minor bug has been corrected in the plot() method.
+
+	Documentation:
+	-	Some typos corrected and other minor fixes in the .Rd files.	
+
 Changes in Version 0.3-0
 
     A new improved version of the "CADFtest" package (version 0.3-0)
 	is available. The new version includes some minor adjustments
-	to the code and adds a number of new features. It accompanies
-	publication of the package in the Journal of Statistical Software.
+	to the code and adds a number of new features.
 
 	New methods added in Version 0.3-0:
 	-	residuals() retrieves the model's residuals;
@@ -55,7 +62,4 @@ Changes in Version 0.3-0
 	Documentation:
 	-	Some typos corrected and other minor fixes in the .Rd files;
 	-	documentation on the new features has been added;
-	-	The new vignette("CADFtest", package = "CADFtest") essentially
-		contains the paper published in the Journal of Statistical
-		Software (http://www.jstatsoft.org/v32/i02/).
-	-	./inst/CITATION now points to the JSS paper.
+	-	an URL tag has been added to ./inst/CITATION.
