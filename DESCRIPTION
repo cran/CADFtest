@@ -2,8 +2,8 @@ Package: CADFtest
 Type: Package
 Title: This package performs the CADF unit root test proposed in Hansen
         (1995).
-Version: 0.3-1
-Date: 2011-05-09
+Version: 0.3-2
+Date: 2014-01-08
 Author: Claudio Lupi
 Maintainer: Claudio Lupi <lupi@unimol.it>
 Depends: dynlm, sandwich, tseries, urca
@@ -19,6 +19,7 @@ License: GPL (>= 2)
 URL: http://www.jstatsoft.org/v32/i02
 LazyLoad: yes
 LazyData: yes
-Packaged: 2011-05-09 15:36:54 UTC; claudio
+Packaged: 2014-01-08 11:48:01 UTC; claudio
 Repository: CRAN
-Date/Publication: 2011-05-09 15:48:09
+Date/Publication: 2014-01-08 13:19:38
+NeedsCompilation: no
