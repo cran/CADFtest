@@ -19,9 +19,9 @@ CADFpvalues <- function(t0, rho2=0.5, type=c("trend", "drift", "none"))
   type <- match.arg(type)
 
   switch(type,
-         "trend" = coeffs <- coeffs_ct,
-         "drift" = coeffs <- coeffs_c,
-         "none"  = coeffs <- coeffs_nc)
+         "trend" = coeffs <- CADFtest::coeffs_ct,
+         "drift" = coeffs <- CADFtest::coeffs_c,
+         "none"  = coeffs <- CADFtest::coeffs_nc)
 
   # the first column of coefs are the probabilities, the other columns are beta_0, ..., beta_3
   # of Costantini, Lupi & Popp eqn (13).

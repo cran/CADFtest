@@ -20,7 +20,7 @@ options(prompt = "R> ", continue="+ ", useFancyQuotes=FALSE)
 
 %% an abstract and keywords
 \Abstract {
-  This document has been published with minor differences in the {\em Journal of Statistical Software} as \citet{lupi2009b}. The paper describes \pkg{CADFtest}, a \proglang{R} package for testing for the presence of a unit root in a time series using the Covariate Augmented Dickey-Fuller (CADF) test proposed in \citet{hansen1995}. The procedures presented here are user friendly, allow fully automatic model specification, and allow computation of the asymptotic $p$~values of the test.
+This document is an update, with minor differences, of \citet{lupi2009b}. The paper describes \pkg{CADFtest}, a \proglang{R} package for testing for the presence of a unit root in a time series using the Covariate Augmented Dickey-Fuller (CADF) test proposed in \citet{hansen1995}. The procedures presented here are user friendly, allow fully automatic model specification, and allow computation of the asymptotic $p$~values of the test.
 }
 
 \Keywords{unit root, stationary covariates, asymptotic $p$~values, \proglang{R}}
@@ -99,7 +99,7 @@ CADFtest(model, X = NULL, type = c("trend", "drift", "none"),
      data = list(), max.lag.y = 1, min.lag.X = 0, max.lag.X = 0, 
      dname = NULL, criterion = c("none", "BIC", "AIC", "HQC", "MAIC"), ...)
 \end{CodeInput}
-The minimal required input is \code{CADFtest(y)}, where \code{y} can be either a vector or a time series. However, if no stationary covariate is specified, an ordinary ADF test is performed. In fact, the ordinary ADF test can be carried out with \proglang{R} using other existing packages such as \pkg{fUnitRoots} \citep{wuertz2009}, \pkg{tseries} \citep{trapletti2009} and \pkg{urca} \citep{pfaff2008}. In this respect there would be no need to add one further package. However, given that the ADF test can be seen as a particular case of the more general CADF test, it seems logical to leave the user the opportunity to carry out both tests in the same framework, using the same conventions and allowing for the computation of the test $p$~values. Furthermore, as will be shown in section \ref{applications}, the interface to \code{CADFtest()} is very flexible and intuitive, and the results are easy to read: this can make carrying out conventional ADF tests using \code{CADFtest()} very appealing. As far as the computation of the $p$~values of the ADF test is concerned, \code{CADFtest()} exploits the facilities offered by \code{punitroots()} implemented in the package \pkg{urca}  \citep{pfaff2008} that uses the method proposed in \citet{mackinnon1994, mackinnon1996}. In principle, it would have been possible (and easy) to use the function \code{CADFpvalues()} described in detail in section \ref{pvalues}, but given that \citet{mackinnon1996} describes a method to compute approximate finite sample, rather than asymptotic, $p$~values, it seems fair to refer directly to a function that implements this procedure. However, note that \citet{mackinnon1996} derives the finite sample $p$~values for Gaussian data: in non-Gaussian settings the finite sample $p$~values are not necessarily more accurate than the asymptotic ones. 
+The minimal required input is \code{CADFtest(y)}, where \code{y} can be either a vector or a time series. However, if no stationary covariate is specified, an ordinary ADF test is performed. In fact, the ordinary ADF test can be carried out with \proglang{R} using other existing packages such as \pkg{fUnitRoots} \citep{wuertz2009},\footnote{Package \pkg{fUnitRoots} was removed from the CRAN repository on 2017-04-24.} \pkg{tseries} \citep{trapletti2009} and \pkg{urca} \citep{pfaff2008}. In this respect there would be no need to add one further package. However, given that the ADF test can be seen as a particular case of the more general CADF test, it seems logical to leave the user the opportunity to carry out both tests in the same framework, using the same conventions and allowing for the computation of the test $p$~values. Furthermore, as will be shown in section \ref{applications}, the interface to \code{CADFtest()} is very flexible and intuitive, and the results are easy to read: this can make carrying out conventional ADF tests using \code{CADFtest()} very appealing. As far as the computation of the $p$~values of the ADF test is concerned, \code{CADFtest()} exploits the facilities offered by \code{punitroot()} implemented in the package \pkg{urca}  \citep{pfaff2008} that uses the method proposed in \citet{mackinnon1994, mackinnon1996}. In principle, it would have been possible (and easy) to use the function \code{CADFpvalues()} described in detail in section \ref{pvalues}, but given that \citet{mackinnon1996} describes a method to compute approximate finite sample, rather than asymptotic, $p$~values, it seems fair to refer directly to a function that implements this procedure. However, note that \citet{mackinnon1996} derives the finite sample $p$~values for Gaussian data: in non-Gaussian settings the finite sample $p$~values are not necessarily more accurate than the asymptotic ones. 
 
 All the arguments, with the exception of \code{min.lag.X} and \code{max.lag.X} that are relevant only when a  CADF test is carried out, work irrespective of the test being ADF or CADF. However, if a proper CADF test has to be performed, at least a stationary covariate must be passed to the procedure. The covariates are passed in a very simple way, using a formula (model) statement. For example, suppose we want to test the variable $y$ using $x_1$ and $x_2$ as stationary covariates: if the other default options are accepted, then it is sufficient to specify \code{CADFtest(y ~ x1 + x2)}. Note that the formula that is passed as argument to the \code{CADFtest()} function is not the complete model to be used, but it just indicates which variable has to be tested for a unit root (\code{y}) and which are to be used as stationary covariates in the test (\code{x1} and \code{x2}). A formula statement can be used also to specify an ordinary ADF test by typing \code{CADFtest(y ~ 1)}, where the term ``\code{1}'' does not imply that a model with constant will be used, but it simply means that no stationary covariate is passed to the procedure (the deterministic kernel is always defined by the argument \code{type} described below).
 
@@ -140,13 +140,13 @@ The $p$~value of the test is stored in \code{ADFt$p.value} and it is easily acce
 ADFt$p.value
 @
 
-As already mentioned, the {\em finite sample} $p$~value is computed using \code{punitroots()} implemented in package \pkg{urca} \citep{pfaff2008}. In principle, it would have been possible also to compute the {\em asymptotic} $p$~value by using the function \code{CADFpvalues} to be described in detail in the next section by invoking
+As already mentioned, the {\em finite sample} $p$~value is computed using \code{punitroot()} implemented in package \pkg{urca} \citep{pfaff2008}. In principle, it would have been possible also to compute the {\em asymptotic} $p$~value by using the function \code{CADFpvalues} to be described in detail in the next section by invoking
 
 <<>>=
 CADFpvalues(ADFt$statistic, type="trend", rho2=1)
 @
 
-When a standard Dickey-Fuller test is performed, \code{CADFtest()} acts as an interface to existing commands. For example, in the case above equation (\ref{trend}) is estimated using the package \pkg{dynlm} \citep{zeileis2009} and the test $p$~value is computed using \code{punitroots()}.  
+When a standard Dickey-Fuller test is performed, \code{CADFtest()} acts as an interface to existing commands. For example, in the case above equation (\ref{trend}) is estimated using the package \pkg{dynlm} \citep{zeileis2009} and the test $p$~value is computed using \code{punitroot()}.  
 
 Even if all the results are readily accessible, a summary of the test can be obtained just by typing
 
@@ -370,14 +370,16 @@ adf.tseries <- adf.test(npext$gnpperca[-(1:49)], k = 3)
 
 The output is easily interpretable, but no \code{summary()} or \code{plot()} methods are offered. Furthermore, the model is restricted to the case with constant and trend only, and the $p$~value is computed using a simplified procedure based on the interpolation of the values reported in \citet[][Table 4.2, p.~103]{banerjeeetal1993}. Finally, \code{adf.test()} does not offer automatic lag selection options.
 
-\pkg{fUnitRoots} \citep{wuertz2009} is another important \proglang{R} package performing unit root tests. In particular, the function \code{unitrootTest()} performs the ADF test and computes the relevant finite sample $p$~values using the approach developed in \citet{mackinnon1996}. However, no automatic lag selection is performed. The object passed to the procedure must be a vector or a time series, but no data argument is used, so that the usual call would be something like
+\pkg{fUnitRoots} \citep{wuertz2009} is another important \proglang{R} package performing unit root tests.\footnote{Package \pkg{fUnitRoots} was removed from the CRAN repository on 2017-04-24.} In particular, the function \code{unitrootTest()} performs the ADF test and computes the relevant finite sample $p$~values using the approach developed in \citet{mackinnon1996}. However, no automatic lag selection is performed.
 
-<<>>=
-library("fUnitRoots")
-adf.fUnitRoots <- unitrootTest(npext$gnpperca, lags = 3, type = "ct")
-@
-
-The function can cope with leading missing values, in the sense that the model is correctly estimated. However, in our example the initial 49 missing values are considered in the length of the series, so that the finite sample $p$~value is incorrect. In order to obtain correct $p$~values, no missing values should be present so that in our case the series should again be adjusted manually.
+%The object passed to the procedure must be a vector or a time series, but no data argument is used, so that the usual call would be something like
+%
+%<<>>=
+%library("fUnitRoots")
+%adf.fUnitRoots <- unitrootTest(npext$gnpperca, lags = 3, type = "ct")
+%@
+%
+%The function can cope with leading missing values, in the sense that the model is correctly estimated. However, in our example the initial 49 missing values are considered in the length of the series, so that the finite sample $p$~value is incorrect. In order to obtain correct $p$~values, no missing values should be present so that in our case the series should again be adjusted manually.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -393,14 +395,24 @@ Differently from the already available routines written in \proglang{GAUSS} and 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+<<echo=FALSE>>=
+CADFtest.version <- packageVersion("CADFtest")
+R.version <- R.Version()$version.string
+dynlm.version <- packageVersion("dynlm")
+sandwich.version <- packageVersion("sandwich")
+tseries.version <- packageVersion("tseries")
+urca.version <- packageVersion("urca")
+@
+
+
 \section*{Computational details}
-The functions illustrated in this paper have been implemented in \proglang{R} version 2.9.2 \citep{R2009} using the following packages, listed in alphabetical order: \pkg{dynlm} version 0.2-3 \citep{zeileis2009}, \pkg{sandwich} version 2.2-1 \citep{zeileis2004, zeileis2006}, \pkg{tseries} version 0.10-19 \citep{trapletti2009}, \pkg{urca} version 1.2-2 \citep{pfaff2008}. 
+This documents describes package \pkg{CADFtest} version \Sexpr{CADFtest.version} and has been compiled using \Sexpr{R.version} and the following packages, listed in alphabetical order: \pkg{dynlm} version \Sexpr{dynlm.version} \citep{zeileis2009}, \pkg{sandwich} version \Sexpr{sandwich.version} \citep{zeileis2004, zeileis2006}, \pkg{tseries} version \Sexpr{tseries.version} \citep{trapletti2009}, \pkg{urca} version \Sexpr{urca.version} \citep{pfaff2008}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Acknowledgments}
-I would like to thank Achim Zeileis for his many comments and suggestions that helped me in improving on previous versions of the package. Both the software and the paper greatly benefited from the detailed comments I received from two anonymous referees and an associate editor. I am grateful to Mauro Costantini and Stephan Popp for comments and discussion. Of course, none of them is responsible for any remaining error. I owe a special thank you to the authors of the \proglang{R} packages used in the development of \pkg{CADFtest}.
+I would like to thank Achim Zeileis for his many comments and suggestions that helped me in improving on previous versions of the package. Both the software and the paper greatly benefited from the detailed comments I received from two anonymous referees and an associate editor of the \textit{Journal of Statistical Software}. I am grateful to Mauro Costantini and Stephan Popp for comments and discussion. Of course, none of them is responsible for any remaining error. I owe a special thank you to the authors of the \proglang{R} packages used in the development of \pkg{CADFtest}.
 
 This text was typeset in \LaTeX ~ using \proglang{R} \citep{R2009} and \code{Sweave()} \citep{leisch2002, leisch2003}.
 

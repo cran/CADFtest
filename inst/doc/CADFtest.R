@@ -1,4 +1,4 @@
-### R code from vignette source 'CADFtest.Rnw'
+### R code from vignette source '/home/claudio/Documents/CADFtest20170531/CADFtest/inst/doc/CADFtest.Rnw'
 
 ###################################################
 ### code chunk number 1: CADFtest.Rnw:8-9
@@ -160,9 +160,13 @@ adf.tseries <- adf.test(npext$gnpperca[-(1:49)], k = 3)
 
 
 ###################################################
-### code chunk number 26: CADFtest.Rnw:375-377
+### code chunk number 26: CADFtest.Rnw:398-404
 ###################################################
-library("fUnitRoots")
-adf.fUnitRoots <- unitrootTest(npext$gnpperca, lags = 3, type = "ct")
+CADFtest.version <- packageVersion("CADFtest")
+R.version <- R.Version()$version.string
+dynlm.version <- packageVersion("dynlm")
+sandwich.version <- packageVersion("sandwich")
+tseries.version <- packageVersion("tseries")
+urca.version <- packageVersion("urca")
 
 

@@ -11,10 +11,29 @@ export(
   "bread.mlm",
   "estfun.mlm")
 
+## imported
+import(
+    "dynlm",
+    "sandwich",
+    "tseries")
+
+importFrom("urca", "punitroot")
+    
+importFrom("graphics", "abline", "layout", "par", "plot")
+
+importFrom("stats", "acf", "coef", "density", "formula", "frequency",
+     "is.ts", "lm", "lsfit", "model.frame", "model.matrix",
+     "model.response", "pacf", "pnorm", "qnorm", "residuals",
+     "residuals.lm", "rstandard", "start", "summary.lm", "ts",
+     "update.formula")
+  
 ## methods for class CADFtest
   S3method("summary", "CADFtest")
   S3method("print", "CADFtestsummary")
   S3method("residuals", "CADFtest")
   S3method("plot", "CADFtest")
   S3method("update", "CADFtest")
-
+  S3method("bread", "mlm")
+  S3method("estfun", "mlm")
+S3method("CADFtest", "formula")
+S3method("CADFtest", "default")

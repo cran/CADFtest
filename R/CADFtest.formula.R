@@ -24,7 +24,7 @@ CADFtest.formula <- function(model, X=NULL, type=c("trend", "drift", "none"),
 #            and all the variables are in levels. It is NOT the model equation on which the test is based.
 #            However, the covariates must be STATIONARY. 
 # type:      it specifies if the underlying model must be with linear trend ("trend", the default), 
-#			 with constant ("drift") or without constant ("none").
+#	     with constant ("drift") or without constant ("none").
 # max.lag.y: it specifies the number of lags of the dependent (\Delta y_t).
 # min.lag.X: it specifies the maximum lead of the covariates (it must be negative or zero).
 # max.lag.X: it specifies the maximum lag of the covariates (it must be positive or zero).

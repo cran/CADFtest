@@ -1,10 +1,10 @@
-f631c0013b07fbf70b10dd3cabc31a90 *DESCRIPTION
-e1a7b2c9c7fef29a93f93c5f40368c9a *NAMESPACE
-e7475d270d18484e6979189470d180f3 *NEWS
-c8850b1013fa56834b9778cafe51d51b *R/CADFpvalues.R
+b2d259845a1aefa3f162cf482f6cfb0e *DESCRIPTION
+5772648962664d4f2e1db75142339512 *NAMESPACE
+eb888c6e19fecac4e562aea27c07cad8 *NEWS
+141d95fea2597b2906270393bb7ab4c1 *R/CADFpvalues.R
 ad638eb689874372b723619cd98be30d *R/CADFtest.R
 ab9e217859be6b7d0125ac5ce4d34750 *R/CADFtest.default.R
-e6200b7597f11ed89dc797c978eb315a *R/CADFtest.formula.R
+eadc65751e0586add3399f7bc574aa8a *R/CADFtest.formula.R
 e3c6524e11c85c1f9c087f1303d66db1 *R/bread.mlm.R
 4c8b9b12c3541d84dcb0296306afb97c *R/estfun.mlm.R
 4513e6add7983bb7f8e7e563148b57bc *R/plot.CADFtest.R
@@ -17,10 +17,10 @@ eca93365a4035dc3682fb8b61288c775 *R/print.CADFtestsummary.R
 66fa4c6291bdb0fbd9ef2d3f255d4c89 *data/coeffs_ct.rda
 a62d48360141bd677dbc543e2f30f686 *data/coeffs_nc.rda
 7190eb87139583fb9e17871e4054a679 *inst/CITATION
-3953b1407cd95022c801a8e3eeb16210 *inst/doc/CADFtest.R
-99cb13fa19633e1e40378971bfa2cbba *inst/doc/CADFtest.Rnw
+90a9940fc09e6ab690cb0784eca298ae *inst/doc/CADFtest.R
+b0b102a4c56097d09520ec85ad7dfe07 *inst/doc/CADFtest.Rnw
 7074ae53c926c2bf5708ed2cee28807e *inst/doc/CADFtest.bib
-e2f35cfa51c06bcb8cf0bdb938e3416d *inst/doc/CADFtest.pdf
+57257a17d32074b69e4280e9b525c1e4 *inst/doc/CADFtest.pdf
 546a75954a58c475954d606e39f2b87d *man/CADFpvalues.Rd
 b5f019b29887d75ae0193828db991e6b *man/CADFtest-internal.Rd
 69e20cc72daa30ce9da1d56d57ce8a22 *man/CADFtest.Rd
@@ -29,5 +29,6 @@ b5e91d4ff4385f1e2d9c8bd0a07c94b4 *man/coeffs_ct.Rd
 e21147861e8efe1bdeff115af0ee021d *man/residuals.CADFtest.Rd
 c694f644aca6b29f98edced812761a45 *man/summary.CADFtest.Rd
 37b3b6695a43b64a4a4a09e9e0fed237 *man/update.CADFtest.Rd
-99cb13fa19633e1e40378971bfa2cbba *vignettes/CADFtest.Rnw
+b0b102a4c56097d09520ec85ad7dfe07 *vignettes/CADFtest.Rnw
 7074ae53c926c2bf5708ed2cee28807e *vignettes/CADFtest.bib
+57257a17d32074b69e4280e9b525c1e4 *vignettes/CADFtest.pdf
